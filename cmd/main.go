@@ -7,7 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	"service/config"
+	"service/internal/config"
 	"service/internal/reader"
 	"service/internal/repository"
 	"service/internal/server"

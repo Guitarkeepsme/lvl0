@@ -5,23 +5,23 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-
-	"service/config"
+	"service/internal/config"
 	"service/internal/domain"
+
+	"github.com/gin-gonic/gin"
 )
 
 type CacheReader interface {
 	GetOrder(id string) *domain.Order
 }
 
-type server struct {
+type Server struct {
 	cache  CacheReader
 	server *http.Server
 }
 
-func NewServer(config config.Config, cache CacheReader) *server {
-	s := &server{
+func NewServer(config config.Config, cache CacheReader) *Server {
+	s := &Server{
 		cache: cache,
 	}
 
@@ -43,11 +43,11 @@ func NewServer(config config.Config, cache CacheReader) *server {
 	return s
 }
 
-func (s *server) Stop() {
+func (s *Server) Stop() {
 	s.server.Shutdown(context.TODO())
 }
 
-func (s *server) GetOrder(c *gin.Context) {
+func (s *Server) GetOrder(c *gin.Context) {
 	order := s.cache.GetOrder(c.Param("id"))
 	if order == nil {
 		c.Status(http.StatusNotFound)

@@ -9,7 +9,7 @@ import (
 	"service/internal/domain"
 )
 
-func (r *reader) Handler(msg *stan.Msg) {
+func (r *Reader) Handler(msg *stan.Msg) {
 	order := &domain.Order{}
 
 	if err := json.Unmarshal(msg.Data, order); err != nil {
@@ -22,7 +22,7 @@ func (r *reader) Handler(msg *stan.Msg) {
 	}
 }
 
-func (r *reader) DBWriter() {
+func (r *Reader) DBWriter() {
 	r.wg.Add(1)
 	defer r.wg.Done()
 
@@ -30,6 +30,7 @@ func (r *reader) DBWriter() {
 		err := r.db.WriteOrder(order)
 		if err != nil {
 			log.Printf("write db order error: %v", err)
+			continue
 		}
 
 		r.cache.WriteOrder(order)

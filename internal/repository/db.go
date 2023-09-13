@@ -6,7 +6,7 @@ import (
 	"github.com/google/uuid"
 	_ "github.com/lib/pq"
 
-	"service/config"
+	"service/internal/config"
 	"service/internal/domain"
 )
 

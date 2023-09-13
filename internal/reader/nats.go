@@ -9,12 +9,10 @@ import (
 
 	"github.com/nats-io/stan.go"
 
-	"service/config"
+	"service/internal/config"
 	"service/internal/domain"
 )
 
-// Писатель в базу данных отправляет информацию, собственно, в базу
-// и возвращает ошибку при её возникновении
 type DBWriter interface {
 	WriteOrder(order *domain.Order) error
 }
@@ -23,20 +21,20 @@ type CacheWriter interface {
 	WriteOrder(order *domain.Order)
 }
 
-type reader struct {
+type Reader struct {
 	db     DBWriter
 	cache  CacheWriter
 	sc     stan.Conn
 	sub    stan.Subscription
 	orders chan *domain.Order
-	done   chan struct{} // Нужен для закрытия... ?
+	done   chan struct{}
 	wg     sync.WaitGroup
 }
 
-func NewReader(config config.Config, db DBWriter, cache CacheWriter) *reader {
+func NewReader(config config.Config, db DBWriter, cache CacheWriter) *Reader {
 	var err error
 
-	r := &reader{
+	r := &Reader{
 		db:     db,
 		cache:  cache,
 		orders: make(chan *domain.Order, config.OrdersBufSize),
@@ -58,7 +56,7 @@ func NewReader(config config.Config, db DBWriter, cache CacheWriter) *reader {
 	return r
 }
 
-func (r *reader) Stop() {
+func (r *Reader) Stop() {
 	r.sub.Close()
 	r.sc.Close()
 	close(r.done)
